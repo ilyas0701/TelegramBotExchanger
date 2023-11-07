@@ -17,7 +17,7 @@ namespace TelegramBotExperiments
         {
             try
             {
-                TelegramBotClass tgc = new TelegramBotClass(token: "6925471651:AAFmdQf0Ew6zSEeU92BOUWHw5GNhfu9zNE0");
+                TelegramBotClass tgc = new TelegramBotClass(token: "TOKEN");
                 tgc.GetUpdates();
             }
             catch(Exception e)

@@ -15,13 +15,13 @@ namespace TelegramBotExperiments
     {
         private string _token;
         private Telegram.Bot.TelegramBotClient _client;
-        private CurrencyRateViewModel _viewModel;
+
         private const string _buttonToAdd = "Перевод долларів в гривні";
         private const string _cheakButtonToAdded = "Подивитись курс доллара для гривні";
 
         public TelegramBotClass(string token)
         {
-            _token = token;
+            this._token = token;
         }
 
         internal void GetUpdates()
@@ -59,13 +59,12 @@ namespace TelegramBotExperiments
 
         private async Task ProcessUpdateAsync(Telegram.Bot.Types.Update update)
         {
-            _viewModel = new CurrencyRateViewModel();
             switch (update.Type)
             {
                 case Telegram.Bot.Types.Enums.UpdateType.Message:
                     var text = update.Message.Text;
                     var chatId = update.Message.Chat.Id;
-                    var sale = await GetMoneySale(_viewModel);
+                    var sale = await GetMoneySale();
 
                     if (text.StartsWith("/start"))
                     {
@@ -94,7 +93,7 @@ namespace TelegramBotExperiments
                                 await _client.SendTextMessageAsync(update.Message.Chat.Id, "Введіть кількість $:", replyMarkup: new ReplyKeyboardRemove());
                                 break;
                             case _cheakButtonToAdded:
-                                string moneyInfo = await GetMoneyInfo(_viewModel);
+                                string moneyInfo = await GetMoneyInfo();
                                 await _client.SendTextMessageAsync(update.Message.Chat.Id, moneyInfo, replyMarkup: GetButtonsMain());
                                 break;
                             default:
@@ -123,24 +122,26 @@ namespace TelegramBotExperiments
             return new ReplyKeyboardMarkup(keyboardButtons);
         }
 
-        private async Task<decimal> GetMoneyBuy(CurrencyRateViewModel vm)
+        private async Task<decimal> GetMoneyBuy()
         {
-            await vm.LoadData();
+            CurrencyRateViewModel viewModel = new CurrencyRateViewModel();
+            await viewModel.LoadData();
 
-            return vm.Buy;
+            return viewModel.Buy;
         }
 
-        private async Task<decimal> GetMoneySale(CurrencyRateViewModel vm)
+        private async Task<decimal> GetMoneySale()
         {
-            await vm.LoadData();
+            CurrencyRateViewModel viewModel = new CurrencyRateViewModel();
+            await viewModel.LoadData();
 
-            return vm.Sale;
+            return viewModel.Sale;
         }
 
-        private async Task<string> GetMoneyInfo(CurrencyRateViewModel viewModel)
+        private async Task<string> GetMoneyInfo()
         {
-            var moneyBuy = await GetMoneyBuy(viewModel);
-            var moneySale = await GetMoneySale(viewModel);
+            var moneyBuy = await GetMoneyBuy();
+            var moneySale = await GetMoneySale();
 
             return $"Покупка = {moneyBuy.ToString("F2")} грн. Продажа = {moneySale.ToString("F2")} грн.";
         }
